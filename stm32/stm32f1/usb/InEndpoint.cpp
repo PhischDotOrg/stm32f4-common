@@ -110,10 +110,19 @@ InEndpoint::sendPacket(const uint8_t * const p_data, const size_t p_length) cons
 
     this->txEnable();
 
-#if 0
-    while ((*this->m_register & USB_EP0R_CTR_TX) == 0) __NOP();
+    /* FIXME This is not the most pretty piece of code. */
+    /*
+     * On the Control IN Endpoint, we wait until the Host has received our IN Packet
+     * thus blocking the upper layers.
+     * For Bulk and IRQ we don't want that; the application needs to implement the
+     * flow control.
+     */
+    if (this->m_endpointNumber == 0) {
+        while ((*this->m_register & USB_EP0R_CTR_TX) == 0) {
+            __NOP();
+        }
+    }
     this->m_endptBufferDescr.m_txCount = 0;
-#endif
 
     USB_PRINTF("<-- InEndpoint::%s()\r\n", __func__);
 }
