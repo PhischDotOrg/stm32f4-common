@@ -13,7 +13,7 @@ namespace stm32 {
 
 void
 Endpoint::reset(void) const {
-    disable();  
+    disable();
     clrCtrRx();
     clrCtrTx();
 

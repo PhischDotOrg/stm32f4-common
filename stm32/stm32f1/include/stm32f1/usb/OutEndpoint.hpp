@@ -89,7 +89,6 @@ public:
 
     void reset(void) const {
         this->setupRxBuffer(&(m_buffer->data), this->m_bufSz);
-
         Endpoint::reset();
     }
 
@@ -187,12 +186,12 @@ public:
 
     void setDataStageBuffer(void * const p_buffer, const size_t p_length) {
         m_dataBuffer.m_buffer = static_cast<uint16_t *>(p_buffer);
-        m_dataBuffer.m_numHalfWords = p_length / sizeof(*m_dataBuffer.m_buffer);
+        static_assert(sizeof(m_dataBuffer.m_buffer[0]) == sizeof(uint16_t));
+        m_dataBuffer.m_numHalfWords = (p_length + (sizeof(m_dataBuffer.m_buffer[0]) / 2)) / sizeof(m_dataBuffer.m_buffer[0]);
     }
 
     void enableSetupPackets(void) const {
         setEndpointType(EndpointType_t::e_Control);
-
         this->rxEnable();
     }
 
@@ -224,13 +223,11 @@ public:
     }
 
     void setup(void) const {
-        this->setAddress(this->m_endpointNumber);
-        this->setEndpointType(Endpoint::EndpointType_e::e_Bulk);
+        reset();
     }
 
     void enable(void) const {
-        setup();
-
+        setEndpointType(EndpointType_t::e_Control);
         rxEnable();
     }
 
